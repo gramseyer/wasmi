@@ -24,11 +24,7 @@ use super::{
     Stored,
 };
 use crate::{
-    collections::arena::ArenaIndex,
-    engine::{Inst, ResumableCall},
-    Engine,
-    Error,
-    Val,
+    Engine, Error, Val, collections::arena::ArenaIndex, engine::{Inst, ResumableCall, Stack}
 };
 use alloc::{boxed::Box, sync::Arc};
 use core::{fmt, fmt::Debug, num::NonZeroU32};
@@ -430,6 +426,25 @@ impl Func {
             self,
             inputs,
             outputs,
+        )?;
+        Ok(())
+    }
+
+    pub fn call_with_stack<T>(
+        &self,
+        mut ctx: impl AsContextMut<Data = T>,
+        inputs: &[Val],
+        outputs: &mut [Val],
+        stack: &mut Stack,
+    ) -> Result<(), Error> {
+        self.verify_and_prepare_inputs_outputs(ctx.as_context(), inputs, outputs)?;
+        // Note: Cloning an [`Engine`] is intentionally a cheap operation.
+        ctx.as_context().store.engine().clone().execute_func_with_stack(
+            ctx.as_context_mut(),
+            self,
+            inputs,
+            outputs,
+            stack,
         )?;
         Ok(())
     }

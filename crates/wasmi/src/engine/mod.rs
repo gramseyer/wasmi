@@ -304,6 +304,21 @@ impl Engine {
         self.inner.execute_func(ctx, func, params, results)
     }
 
+    #[inline]
+    pub(crate) fn execute_func_with_stack<T, Results>(
+        &self,
+        ctx: StoreContextMut<T>,
+        func: &Func,
+        params: impl CallParams,
+        results: Results,
+        stack: &mut Stack,
+    ) -> Result<<Results as CallResults>::Results, Error>
+    where
+        Results: CallResults,
+    {
+        self.inner.execute_func_with_stack(ctx, func, params, results, stack)
+    }
+
     /// Executes the given [`Func`] resumably with parameters `params` and returns.
     ///
     /// Stores the execution result into `results` upon a successful execution.
