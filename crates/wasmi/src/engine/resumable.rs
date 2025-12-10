@@ -66,6 +66,10 @@ impl ResumableHostTrapError {
         self.host_error
     }
 
+    pub(crate) fn as_error_ref(&self) -> &Error {
+        &self.host_error
+    }
+
     /// Returns the [`Func`] of the [`ResumableHostTrapError`].
     pub(crate) fn host_func(&self) -> &Func {
         &self.host_func

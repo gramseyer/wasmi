@@ -242,6 +242,7 @@ impl ErrorKind {
     pub fn as_host(&self) -> Option<&dyn HostError> {
         match self {
             Self::Host(error) => Some(error.as_ref()),
+            Self::ResumableHostTrap(error) => error.as_error_ref().kind().as_host(),
             _ => None,
         }
     }
