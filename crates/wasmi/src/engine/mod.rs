@@ -162,6 +162,10 @@ impl Engine {
         Arc::ptr_eq(&a.inner, &b.inner)
     }
 
+    pub fn new_stack(&self) -> Stack {
+        self.inner.new_stack()
+    }
+
     /// Allocates a new function type to the [`Engine`].
     pub(super) fn alloc_func_type(&self, func_type: FuncType) -> DedupFuncType {
         self.inner.alloc_func_type(func_type)
@@ -302,6 +306,21 @@ impl Engine {
         Results: CallResults,
     {
         self.inner.execute_func(ctx, func, params, results)
+    }
+
+    #[inline]
+    pub(crate) fn execute_func_with_stack<T, Results>(
+        &self,
+        ctx: StoreContextMut<T>,
+        func: &Func,
+        params: impl CallParams,
+        results: Results,
+        stack: &mut Stack,
+    ) -> Result<<Results as CallResults>::Results, Error>
+    where
+        Results: CallResults,
+    {
+        self.inner.execute_func_with_stack(ctx, func, params, results, stack)
     }
 
     /// Executes the given [`Func`] resumably with parameters `params` and returns.
@@ -760,5 +779,10 @@ impl EngineInner {
     /// Recycles the given [`Stack`].
     fn recycle_stack(&self, stack: Stack) {
         self.stacks.lock().recycle(stack)
+    }
+
+    /// Creates a new [`Stack`] with the given [`StackConfig`].
+    fn new_stack(&self) -> Stack {
+        Stack::new(&self.config().stack)
     }
 }

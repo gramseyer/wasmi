@@ -50,6 +50,22 @@ impl EngineInner {
         Ok(results)
     }
 
+    pub fn execute_func_with_stack<T, Results>(
+        &self,
+        ctx: StoreContextMut<T>,
+        func: &Func,
+        params: impl CallParams,
+        results: Results,
+        stack: &mut Stack,
+    ) -> Result<<Results as CallResults>::Results, Error>
+    where
+        Results: CallResults,
+    {
+        let results = EngineExecutor::new(&self.code_map, stack)
+            .execute_root_func(ctx.store, func, params, results)?;
+        Ok(results)
+    }
+
     /// Executes the given [`Func`] resumably with the given `params` and returns the `results`.
     ///
     /// Uses the [`StoreContextMut`] for context information about the Wasm [`Store`].
